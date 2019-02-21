@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { View, StyleSheet}  from 'react-native';
-import { Container, Icon, Button, Form, Item, Label, Input, Text} from 'native-base';
+import { Container, Icon, Button, Form, Item, Label, Input, Text, DatePicker} from 'native-base';
 import ActionButton from 'react-native-action-button';
 import { Calendar } from 'react-native-calendars';
 import Modal from 'react-native-modal';
@@ -11,28 +11,42 @@ export default class App extends Component {
   
     this.state = {
        visibleModal : null,
+       choosenDate : new Date()
     };
   };
   
-  renderButton = (text, onPress) => (
-    <Button style={styles.button} block onPress={onPress}>
+  setDate = (newDate) => {
+    this.setState({choosenDate: newDate})
+  }
+
+  renderButton = (text, onPress, style) => (
+    <Button style={style} block onPress={onPress}>
       <Text>{text}</Text>
     </Button>
   );
 
-  renderModalContent = () => (
+  renderModalCreate = () => (
     <View style={styles.modalContent}>
       <Form>
-        <Item>
-          <Label>Event Name</Label>
-          <Input />
+        <Item >
+          <Input placeholder="Event Name" />
         </Item>
-        <Item>
-          <Label>Description</Label>
-          <Input />
+        <Item >
+          <Input placeholder="Event Description" />
         </Item>
       </Form>
-      {this.renderButton("Close", () => this.setState({ visibleModal: null }))}
+      <View style={styles.selectDate}>
+        <Text>Date : </Text>
+        <DatePicker 
+          animationType={"slide"}
+          onDateChange={(newDate) => this.setDate(newDate)}
+          placeHolderText="Select Date"
+          placeHolderTextStyle={{ color: "teal"}}
+          textStyle={{ color: "teal"}}
+        />
+      </View>
+      {this.renderButton("Add", () => console.log(this.state.choosenDate), styles.button)}
+      {this.renderButton("Close", () => this.setState({ visibleModal: null }), styles.backButton)}
     </View>
   );
 
@@ -40,7 +54,7 @@ export default class App extends Component {
     return (
       <Container style={{flex: 1}}>
         <Modal isVisible={this.state.visibleModal === 1}>
-          {this.renderModalContent()}
+          {this.renderModalCreate()}
         </Modal>
         <Calendar/>
         <ActionButton
@@ -64,4 +78,12 @@ const styles = StyleSheet.create({
   button: {
     marginTop: 10
   },
+  backButton: {
+    marginTop: 10,
+    backgroundColor: 'red'
+  },
+  selectDate: {
+    flexDirection: 'row',
+    alignItems: 'center'
+  }
 })
