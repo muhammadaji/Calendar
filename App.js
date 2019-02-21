@@ -4,6 +4,7 @@ import { Container, Icon, Button, Form, Item, Label, Input, Text, DatePicker} fr
 import ActionButton from 'react-native-action-button';
 import { Calendar } from 'react-native-calendars';
 import Modal from 'react-native-modal';
+import moment from 'moment';
 
 export default class App extends Component {
   constructor(props) {
@@ -11,7 +12,13 @@ export default class App extends Component {
   
     this.state = {
        visibleModal : null,
-       choosenDate : new Date()
+       choosenDate : new Date(),
+       eventName : "",
+       eventDesc : "",
+       markedDates : {
+        '2019-02-16' : {selected: true, event: 'asdw'},
+        '2019-02-22' : {selected: true, event: 'asdw'}
+       }
     };
   };
   
@@ -43,7 +50,8 @@ export default class App extends Component {
           placeHolderText="Select Date"
           placeHolderTextStyle={{ color: "teal"}}
           textStyle={{ color: "teal"}}
-        />
+          formatChosenDate={date => {return moment(date).format('YYYY-MM-DD');}}
+      />
       </View>
       {this.renderButton("Add", () => console.log(this.state.choosenDate), styles.button)}
       {this.renderButton("Close", () => this.setState({ visibleModal: null }), styles.backButton)}
@@ -56,7 +64,11 @@ export default class App extends Component {
         <Modal isVisible={this.state.visibleModal === 1}>
           {this.renderModalCreate()}
         </Modal>
-        <Calendar/>
+        <Calendar
+          markedDates={
+            this.state.markedDates
+          }
+        />
         <ActionButton
           buttonColor="#209fd5"
           position="right"
