@@ -5,25 +5,40 @@ import ActionButton from 'react-native-action-button';
 import { Calendar } from 'react-native-calendars';
 import Modal from 'react-native-modal';
 import moment from 'moment';
+import _ from 'lodash';
 
 export default class App extends Component {
+  
   constructor(props) {
     super(props)
   
     this.state = {
        visibleModal : null,
-       choosenDate : new Date(),
+       choosenDate : '',
        eventName : "",
        eventDesc : "",
-       markedDates : {
-        '2019-02-16' : {selected: true, event: 'asdw'},
-        '2019-02-22' : {selected: true, event: 'asdw'}
-       }
+       markedDates : []
     };
   };
   
+  _markedDates = () => {
+    var Date = _.keyBy(this.state.markedDates, data => data.date);
+    return Date;
+  }
+
+  setEvent = () => {
+    var setDate = {
+      date: this.state.choosenDate,
+      selected: true,
+      eventName: this.state.eventName,
+      eventDesc: this.state.eventDesc
+    }
+    this.state.markedDates.push(setDate);
+    this.setState({visibleModal: null});
+  }
+
   setDate = (newDate) => {
-    this.setState({choosenDate: newDate})
+    this.setState({choosenDate: moment(newDate).format('YYYY-MM-DD')})
   }
 
   renderButton = (text, onPress, style) => (
@@ -36,10 +51,10 @@ export default class App extends Component {
     <View style={styles.modalContent}>
       <Form>
         <Item >
-          <Input placeholder="Event Name" />
+          <Input placeholder="Event Name" onChangeText={(text) => this.setState({eventName: text})} />
         </Item>
         <Item >
-          <Input placeholder="Event Description" />
+          <Input placeholder="Event Description" onChangeText={(text) => this.setState({eventDesc: text})}/>
         </Item>
       </Form>
       <View style={styles.selectDate}>
@@ -53,7 +68,7 @@ export default class App extends Component {
           formatChosenDate={date => {return moment(date).format('YYYY-MM-DD');}}
       />
       </View>
-      {this.renderButton("Add", () => console.log(this.state.choosenDate), styles.button)}
+      {this.renderButton("Add", () => this.setEvent(), styles.button)}
       {this.renderButton("Close", () => this.setState({ visibleModal: null }), styles.backButton)}
     </View>
   );
@@ -65,9 +80,7 @@ export default class App extends Component {
           {this.renderModalCreate()}
         </Modal>
         <Calendar
-          markedDates={
-            this.state.markedDates
-          }
+          markedDates={this._markedDates()}
         />
         <ActionButton
           buttonColor="#209fd5"
