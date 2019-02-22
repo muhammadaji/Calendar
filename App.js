@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { View, StyleSheet}  from 'react-native';
-import { Container, Icon, Button, Form, Item, Label, Input, Text, DatePicker} from 'native-base';
+import { Container, Icon, Button, Form, Item, Input, Text, DatePicker} from 'native-base';
 import ActionButton from 'react-native-action-button';
 import { Calendar } from 'react-native-calendars';
 import Modal from 'react-native-modal';
@@ -17,7 +17,8 @@ export default class App extends Component {
        choosenDate : '',
        eventName : "",
        eventDesc : "",
-       markedDates : []
+       markedDates : [],
+       selectedDate: {}
     };
   };
   
@@ -38,7 +39,16 @@ export default class App extends Component {
   }
 
   setDate = (newDate) => {
-    this.setState({choosenDate: moment(newDate).format('YYYY-MM-DD')})
+    this.setState({choosenDate: moment(newDate).format('YYYY-MM-DD')});
+  }
+
+  modalView = (day) => {
+    var selectDate = _.find(this.state.markedDates, {"date": day.dateString});
+    if (selectDate !== undefined) {
+      this.setState({selectedDate: selectDate, visibleModal: 2})
+    }else{
+      alert('No Event Created')
+    }
   }
 
   renderButton = (text, onPress, style) => (
@@ -46,15 +56,22 @@ export default class App extends Component {
       <Text>{text}</Text>
     </Button>
   );
+  
+  renderModalView = () => (
+      <View style={styles.modalContent}>
+        <Text>{this.state.selectedDate.date}</Text>
+        {this.renderButton("Close", () => this.setState({visibleModal: null}), styles.backButton)}
+      </View>
+  )
 
   renderModalCreate = () => (
     <View style={styles.modalContent}>
       <Form>
         <Item >
-          <Input placeholder="Event Name" onChangeText={(text) => this.setState({eventName: text})} />
+          <Input placeholderTextColor="black" placeholder="Event Name" onChangeText={(text) => this.setState({eventName: text})} />
         </Item>
         <Item >
-          <Input placeholder="Event Description" onChangeText={(text) => this.setState({eventDesc: text})}/>
+          <Input placeholderTextColor="black" placeholder="Event Description" onChangeText={(text) => this.setState({eventDesc: text})}/>
         </Item>
       </Form>
       <View style={styles.selectDate}>
@@ -79,8 +96,12 @@ export default class App extends Component {
         <Modal isVisible={this.state.visibleModal === 1}>
           {this.renderModalCreate()}
         </Modal>
+        <Modal isVisible={this.state.visibleModal === 2}>
+          {this.renderModalView()}        
+        </Modal>
         <Calendar
           markedDates={this._markedDates()}
+          onDayPress={(day) => this.modalView(day)}
         />
         <ActionButton
           buttonColor="#209fd5"
@@ -109,6 +130,7 @@ const styles = StyleSheet.create({
   },
   selectDate: {
     flexDirection: 'row',
-    alignItems: 'center'
+    alignItems: 'center',
+    marginLeft: 15,
   }
 })
