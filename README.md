@@ -1,1 +1,3 @@
 # Calendar
+
+npm install
